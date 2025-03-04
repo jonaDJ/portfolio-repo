@@ -3,8 +3,8 @@ import HeroCard from "../components/HeroCard";
 
 const Hero = () => {
   return (
-    <section className="flex flex-col items-center justify-center text-center p-10 bg-gray-950 text-white min-h-screen">
-      <div className="max-w-4xl w-full">
+    <section className="flex flex-col items-center justify-center text-center py-10 bg-gray-950 text-white min-h-screen">
+      <div className="w-full">
         <h1 className="text-4xl sm:text-5xl font-bold">
           Hey, Welcome to my page. I am{" "}
           <span className="text-blue-400">Jon</span>

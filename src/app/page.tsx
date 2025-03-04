@@ -5,7 +5,7 @@ import Hero from "@/Sections/Hero";
 
 export default function Home() {
   return (
-    <div className="px-[5%] py-3">
+    <div className="px-[5%] pl-15 pr-5">
       <Hero />
       <Contact />
     </div>

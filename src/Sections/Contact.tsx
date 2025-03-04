@@ -38,7 +38,7 @@ const Contact = () => {
       </div>
 
       {/* Content Container */}
-      <div className="w-full max-w-6xl flex flex-col md:flex-row gap-8">
+      <div className="w-full flex flex-col md:flex-row gap-8">
         {/* Left Side - 1/4 Width */}
         <div className="w-full md:w-1/4">
           <p className="text-gray-300 text-lg">
@@ -76,7 +76,7 @@ const Contact = () => {
       </div>
 
       {/* Social Links */}
-      <div className="mt-12 w-full max-w-6xl">
+      <div className="mt-12 w-full">
         <div className="flex flex-row gap-6 justify-center">
           {socialLinks.map((link) => (
             <a
