@@ -26,11 +26,11 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        className={`${geistSans.variable} ${geistMono.variable} antialiased flex flex-col max-h-screen sm:h-auto sm:flex-row`}
       >
         <SidebarNav />
-        <div className=" flex justify-center items-center">
-          <div className="max-w-6xl">{children}</div>
+        <div className="flex-1 overflow-y-auto max-h-screen scrollbar-mobile md:scrollbar-desktop">
+          <div className="p-4 max-w-6xl">{children}</div>
         </div>
       </body>
     </html>

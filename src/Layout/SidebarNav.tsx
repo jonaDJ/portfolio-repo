@@ -2,45 +2,63 @@
 
 import React, { useState, useRef, useEffect } from "react";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import {
-  Home,
-  Book,
-  Code,
+  BrainCircuit,
+  BookOpen,
+  Terminal,
   Mail,
-  SidebarOpen,
-  SidebarClose,
+  Menu,
+  X,
+  ExternalLink,
 } from "lucide-react";
 
 const navLinks = [
   {
     id: 1,
     href: "/",
-    icon: <Home size={24} className="text-blue-500" />,
-    label: "Home",
+    icon: <BrainCircuit size={24} className="text-sky-400" />,
+    label: "Overview",
   },
   {
     id: 2,
     href: "/blog",
-    icon: <Book size={24} className="text-purple-500" />,
-    label: "Blog",
+    icon: <BookOpen size={24} className="text-rose-500" />,
+    label: "Journal",
   },
   {
     id: 3,
     href: "/projects",
-    icon: <Code size={24} className="text-green-500" />,
+    icon: <Terminal size={24} className="text-lime-400" />,
     label: "Projects",
   },
   {
     id: 4,
-    href: "/contact",
-    icon: <Mail size={24} className="text-red-500" />,
-    label: "Contact",
+    href: "/#contact",
+    icon: <Mail size={24} className="text-indigo-400" />,
+    label: "Connect",
+  },
+  {
+    id: 5,
+    href: "https://balancedbiteprep.com/",
+    icon: <ExternalLink size={24} className="text-amber-400" />,
+    label: "WordPress",
   },
 ];
 
 const SidebarNav = () => {
   const [isOpen, setIsOpen] = useState(false);
   const sidebarRef = useRef<HTMLDivElement | null>(null);
+  const pathname = usePathname();
+
+  useEffect(() => {
+    if (typeof window !== "undefined" && window.location.hash === "#contact") {
+      const contactSection = document.getElementById("contact");
+      if (contactSection) {
+        contactSection.scrollIntoView({ behavior: "smooth" });
+      }
+    }
+  }, [pathname]);
 
   const toggleSidebar = () => {
     setIsOpen(!isOpen);
@@ -57,51 +75,58 @@ const SidebarNav = () => {
       }
     };
 
-    const handleMouseDown = (event: MouseEvent) => {
-      handleClickOutside(event);
-    };
-
-    const handleTouchStart = (event: TouchEvent) => {
-      handleClickOutside(event);
-    };
-
-    document.addEventListener("mousedown", handleMouseDown);
-    document.addEventListener("touchstart", handleTouchStart, {
+    document.addEventListener("mousedown", handleClickOutside);
+    document.addEventListener("touchstart", handleClickOutside, {
       passive: true,
-    }); // Adding passive listener for touch
+    });
 
     return () => {
-      document.removeEventListener("mousedown", handleMouseDown);
-      document.removeEventListener("touchstart", handleTouchStart);
+      document.removeEventListener("mousedown", handleClickOutside);
+      document.removeEventListener("touchstart", handleClickOutside);
     };
   }, []);
 
   return (
     <nav
       ref={sidebarRef}
-      className={`fixed z-50 left-0 top-0 h-screen bg-gray-950 py-8 px-1 flex flex-col items-start justify-start gap-6 border-r border-gray-800 transition-transform duration-300 `}
+      className={`z-50 left-0 top-0 bg-gray-950 py-0 px-0 flex flex-col items-start justify-start gap-6 border-r border-gray-800 transition-transform duration-300 ${
+        isOpen ? "w-55" : "w-auto"
+      } sm:py-8 sm:px-1`}
     >
       <button
         onClick={toggleSidebar}
         aria-label="Toggle Navigation"
         aria-expanded={isOpen}
-        className="py-2 px-2 hover:bg-gray-600 rounded-lg transition"
+        className="py-2 px-2 hover:bg-gray-600 rounded-lg transition hidden sm:block"
       >
-        {isOpen ? <SidebarOpen /> : <SidebarClose />}
+        {isOpen ? <X /> : <Menu />}
       </button>
-      <div className="flex flex-col gap-4 w-full">
-        {navLinks.map((link) => (
-          <Link
-            key={link.id}
-            href={link.href}
-            className="flex items-center gap-3 py-2 px-2 w-full text-gray-300 hover:text-white hover:bg-gray-600 rounded-lg transition"
-          >
-            {link.icon}
-            <span className={`text-lg ${isOpen ? "" : "hidden"}`}>
-              {link.label}
-            </span>
-          </Link>
-        ))}
+      <div className="flex flex-row gap-0 w-full border-b-1 sm:flex-col sm:gap-4 sm:border-b-0">
+        {navLinks.map((link) => {
+          const isActive = pathname === link.href;
+          return (
+            <Link
+              key={link.id}
+              href={link.href}
+              className={`flex items-center justify-center gap-4 py-3 px-2 w-full hover:text-gray-900 hover:bg-gray-800 rounded-0 transition-all duration-200 ease-in-out ${
+                isActive ? "bg-gray-600 text-black" : ""
+              } sm:justify-start sm:rounded-lg`}
+              target={link.href.startsWith("http") ? "_blank" : undefined}
+              rel={
+                link.href.startsWith("http") ? "noopener noreferrer" : undefined
+              }
+            >
+              {link.icon}
+              <span
+                className={`text-lg font-medium ${
+                  isOpen ? "hidden sm:block" : "hidden"
+                } `}
+              >
+                {link.label}
+              </span>
+            </Link>
+          );
+        })}
       </div>
     </nav>
   );

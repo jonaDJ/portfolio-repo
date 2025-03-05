@@ -28,7 +28,10 @@ const socialLinks = [
 
 const Contact = () => {
   return (
-    <section className="flex flex-col items-center justify-center p-10 bg-gray-950 text-white min-h-screen">
+    <section
+      id="contact"
+      className="flex flex-col items-center justify-center p-10 min-h-screen"
+    >
       {/* Heading */}
       <div className="text-center mb-12">
         <h2 className="text-4xl sm:text-5xl font-bold">Get in Touch</h2>
