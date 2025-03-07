@@ -1,7 +1,6 @@
 "use client";
 
 import React, { useState, useRef, useEffect } from "react";
-import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
   BrainCircuit,
@@ -10,7 +9,7 @@ import {
   Mail,
   Menu,
   X,
-  ExternalLink,
+  User,
 } from "lucide-react";
 
 const navLinks = [
@@ -34,15 +33,15 @@ const navLinks = [
   },
   {
     id: 4,
-    href: "/#contact",
+    href: "/contact",
     icon: <Mail size={24} className="text-indigo-400" />,
     label: "Connect",
   },
   {
     id: 5,
-    href: "https://balancedbiteprep.com/",
-    icon: <ExternalLink size={24} className="text-amber-400" />,
-    label: "WordPress",
+    href: "/about",
+    icon: <User size={24} className="text-teal-500" />,
+    label: "About",
   },
 ];
 
@@ -91,7 +90,7 @@ const SidebarNav = () => {
       ref={sidebarRef}
       className={`z-50 left-0 top-0 bg-gray-950 py-0 px-0 flex flex-col items-start justify-start gap-6 border-r border-gray-800 transition-transform duration-300 ${
         isOpen ? "w-55" : "w-auto"
-      } sm:py-8 sm:px-1`}
+      } sm:py-8 sm:px-1 sm:h-screen`}
     >
       <button
         onClick={toggleSidebar}
@@ -105,11 +104,11 @@ const SidebarNav = () => {
         {navLinks.map((link) => {
           const isActive = pathname === link.href;
           return (
-            <Link
+            <a
               key={link.id}
               href={link.href}
-              className={`flex items-center justify-center gap-4 py-3 px-2 w-full hover:text-gray-900 hover:bg-gray-800 rounded-0 transition-all duration-200 ease-in-out ${
-                isActive ? "bg-gray-600 text-black" : ""
+              className={`flex items-center justify-center gap-4 py-3 px-2 w-full hover:text-gray-900 hover:bg-white rounded-0 transition-all duration-200 ease-in-out ${
+                isActive ? "bg-gray-500 text-gray-900" : ""
               } sm:justify-start sm:rounded-lg`}
               target={link.href.startsWith("http") ? "_blank" : undefined}
               rel={
@@ -124,7 +123,7 @@ const SidebarNav = () => {
               >
                 {link.label}
               </span>
-            </Link>
+            </a>
           );
         })}
       </div>

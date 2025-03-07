@@ -34,7 +34,10 @@ const ProjectCard: React.FC<ProjectCardProps> = ({
   }, [cardId]);
 
   return (
-    <article className="w-full bg-gray-900 rounded-lg overflow-hidden transition-all duration-300 transform hover:shadow-lg hover:scale-[1.01] cursor-pointer">
+    <article
+      key={id}
+      className="w-full bg-gray-900 rounded-lg overflow-hidden transition-all duration-300 transform hover:shadow-lg hover:scale-[1.01] cursor-pointer"
+    >
       <div
         className={`relative ${
           cardId === id ? "rotate-y-180" : "rotate-y-0"
