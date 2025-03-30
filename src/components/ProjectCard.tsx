@@ -1,3 +1,5 @@
+"use client";
+
 import React, { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import { Github, Globe, Info, XCircle } from "lucide-react";
@@ -10,6 +12,7 @@ interface ProjectCardProps {
   description: string;
   demoLink: string | null;
   codeLink: string;
+  date: string;
   cardId: number;
   setCardId: (id: number) => void;
 }
@@ -21,6 +24,7 @@ const ProjectCard: React.FC<ProjectCardProps> = ({
   description,
   demoLink,
   codeLink,
+  date,
   cardId,
   setCardId,
 }) => {
@@ -32,6 +36,15 @@ const ProjectCard: React.FC<ProjectCardProps> = ({
       setMainCardHeight(mainCardRef.current.offsetHeight);
     }
   }, [cardId]);
+
+  const formatDate = (dateString: string) => {
+    const options: Intl.DateTimeFormatOptions = {
+      year: "numeric",
+      month: "short",
+      day: "numeric",
+    };
+    return new Date(dateString).toLocaleDateString("en-US", options);
+  };
 
   return (
     <article
@@ -46,7 +59,7 @@ const ProjectCard: React.FC<ProjectCardProps> = ({
         {cardId === id ? (
           // Description Card (Back)
           <div
-            className={`w-full h-full bg-gray-900 rounded-lg px-2 py-2 transition-opacity transform rotate-y-180 duration-500 flex flex-col`}
+            className={`w-full justify-between h-full bg-gray-900 rounded-lg px-4 py-4 transition-opacity transform rotate-y-180 duration-500 flex flex-col`}
             style={{
               height: mainCardHeight ? `${mainCardHeight}px` : "auto",
             }}
@@ -56,13 +69,16 @@ const ProjectCard: React.FC<ProjectCardProps> = ({
             }}
           >
             <button
-              className="absolute self-end mb-3 text-gray-50 hover:text-gray-200 "
+              className="w-full flex justify-end mb-2 text-gray-50 hover:text-gray-200"
               aria-label="Close description"
             >
               <XCircle size={24} className="text-gray-50 hover:text-gray-400" />
             </button>
-            <div className="flex-grow flex items-center justify-center">
-              <p className="text-md text-center">{description}</p>
+
+            <p className="text-md mb-4 text-center">{description}</p>
+
+            <div className="text-sm text-gray-400">
+              <p>Created: {formatDate(date)}</p>
             </div>
           </div>
         ) : (
@@ -90,7 +106,7 @@ const ProjectCard: React.FC<ProjectCardProps> = ({
                 <div className="flex justify-between items-center mb-3">
                   <h3 className="text-lg font-semibold">{title}</h3>
                   <button
-                    className="transition-transform  hover:scale-110 focus:text-white"
+                    className="transition-transform hover:scale-110 focus:text-white"
                     aria-label="View description"
                   >
                     <Info
@@ -127,6 +143,9 @@ const ProjectCard: React.FC<ProjectCardProps> = ({
                       <span className="text-md">Code</span>
                     </Link>
                   </div>
+                  <span className="text-xs text-gray-400">
+                    {formatDate(date)}
+                  </span>
                 </div>
               </div>
             </div>

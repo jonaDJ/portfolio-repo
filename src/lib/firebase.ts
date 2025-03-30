@@ -33,7 +33,6 @@ const formatDate = (date: Timestamp | string): string => {
   return date;
 };
 
-// Fetch using Collection + ID (its doc ID)
 export const fetchDocumentById = async (
   collectionName: string,
   id: string
@@ -62,7 +61,6 @@ export const fetchDocumentById = async (
   }
 };
 
-// Fetch using Collection + field types([] === all)
 export const fetchCollection = async <T>(
   collectionName: string,
   fields?: (keyof T)[]

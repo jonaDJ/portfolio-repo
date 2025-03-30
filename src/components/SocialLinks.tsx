@@ -4,21 +4,21 @@ import { CookingPot, Github, Linkedin } from "lucide-react";
 const socialLinks = [
   {
     id: 1,
-    href: "https://balancedbiteprep.com/",
+    href: process.env.NEXT_PUBLIC_BALANCED_BITE_URL || "#",
     icon: <CookingPot size={24} className="text-amber-500" />,
     label: "Balance Bite",
     description: "Read my food articles",
   },
   {
     id: 2,
-    href: "https://github.com/yourusername",
+    href: process.env.NEXT_PUBLIC_GITHUB_URL || "#",
     icon: <Github size={24} className="text-purple-500" />,
     label: "GitHub",
     description: "Check out my projects",
   },
   {
     id: 3,
-    href: "https://linkedin.com/in/yourusername",
+    href: process.env.NEXT_PUBLIC_LINKEDIN_URL || "#",
     icon: <Linkedin size={24} className="text-blue-400" />,
     label: "LinkedIn",
     description: "Connect with me",

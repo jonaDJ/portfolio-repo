@@ -3,20 +3,19 @@
 import React, { useState, FormEvent } from "react";
 import { addDoc } from "firebase/firestore";
 import { messagesCollection } from "@/lib/firebase";
-import { X } from "lucide-react";
+import { X, Send, Loader2 } from "lucide-react";
 
 export const ContactForm = () => {
-  const [name, setName] = useState<string>("");
-  const [email, setEmail] = useState<string>("");
-  const [message, setMessage] = useState<string>("");
-  const [loading, setLoading] = useState<boolean>(false);
+  const [formData, setFormData] = useState({
+    name: "",
+    email: "",
+    message: "",
+  });
+  const [loading, setLoading] = useState(false);
   const [status, setStatus] = useState<{
     type: "success" | "error" | "";
     message: string;
-  }>({
-    type: "",
-    message: "",
-  });
+  }>({ type: "", message: "" });
   const [errors, setErrors] = useState<{
     name?: string;
     email?: string;
@@ -25,29 +24,43 @@ export const ContactForm = () => {
 
   const validateForm = (): boolean => {
     let valid = true;
-    let newErrors: { name?: string; email?: string; message?: string } = {};
+    const newErrors: typeof errors = {};
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-    if (!name.trim()) {
-      newErrors.name = "Name is required.";
+    if (!formData.name.trim()) {
+      newErrors.name = "Name is required";
       valid = false;
     }
 
-    const emailRegex = /^[\w-]+(\.[\w-]+)*@([\w-]+\.)+[a-zA-Z]{2,7}$/;
-    if (!email.trim()) {
-      newErrors.email = "Email is required.";
+    if (!formData.email.trim()) {
+      newErrors.email = "Email is required";
       valid = false;
-    } else if (!emailRegex.test(email)) {
-      newErrors.email = "Please enter a valid email address.";
+    } else if (!emailRegex.test(formData.email)) {
+      newErrors.email = "Please enter a valid email";
       valid = false;
     }
 
-    if (!message.trim()) {
-      newErrors.message = "Message is required.";
+    if (!formData.message.trim()) {
+      newErrors.message = "Message is required";
+      valid = false;
+    } else if (formData.message.length < 10) {
+      newErrors.message = "Message should be at least 10 characters";
       valid = false;
     }
 
     setErrors(newErrors);
     return valid;
+  };
+
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
+    // Clear error when user starts typing
+    if (errors[name as keyof typeof errors]) {
+      setErrors((prev) => ({ ...prev, [name]: undefined }));
+    }
   };
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
@@ -62,26 +75,20 @@ export const ContactForm = () => {
 
     try {
       await addDoc(messagesCollection, {
-        name,
-        email,
-        message,
+        ...formData,
         createdAt: new Date(),
       });
 
       setStatus({
         type: "success",
-        message:
-          "Thanks for reaching out! I’ll respond to your message shortly.",
+        message: "Message sent! I'll get back to you soon.",
       });
-
-      setName("");
-      setEmail("");
-      setMessage("");
+      setFormData({ name: "", email: "", message: "" });
     } catch (error) {
-      console.error("Error sending message: ", error);
+      console.error("Error sending message:", error);
       setStatus({
         type: "error",
-        message: "Failed to send message. Please try again.",
+        message: "Failed to send. Please try again.",
       });
     } finally {
       setLoading(false);
@@ -89,77 +96,85 @@ export const ContactForm = () => {
   };
 
   return (
-    <form
-      className="w-full max-w-lg mx-auto flex flex-col gap-4"
-      onSubmit={handleSubmit}
-    >
-      <div className="w-full max-w-lg mx-auto flex flex-col">
+    <form onSubmit={handleSubmit} className="w-full max-w-lg mx-auto space-y-4">
+      <div className="space-y-1">
         <input
+          name="name"
           type="text"
           placeholder="Your Name"
-          className="p-3 rounded-lg bg-gray-800 border border-gray-700 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
-          value={name}
-          onChange={(e) => setName(e.target.value)}
+          className="w-full p-3 rounded-lg bg-gray-800 border border-gray-700 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
+          value={formData.name}
+          onChange={handleChange}
         />
-        <div className="h-5">
-          {errors.name && (
-            <span className="text-red-500 text-sm">{errors.name}</span>
-          )}
-        </div>
+        {errors.name && (
+          <p className="text-red-500 text-sm px-1">{errors.name}</p>
+        )}
       </div>
 
-      <div className="w-full max-w-lg mx-auto flex flex-col">
+      <div className="space-y-1">
         <input
-          type="text"
+          name="email"
+          type="email"
           placeholder="Your Email"
-          className="p-3 rounded-lg bg-gray-800 border border-gray-700 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
+          className="w-full p-3 rounded-lg bg-gray-800 border border-gray-700 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
+          value={formData.email}
+          onChange={handleChange}
         />
-        <div className="h-5">
-          {errors.email && (
-            <span className="text-red-500 text-sm">{errors.email}</span>
-          )}
-        </div>
+        {errors.email && (
+          <p className="text-red-500 text-sm px-1">{errors.email}</p>
+        )}
       </div>
 
-      <div className="w-full max-w-lg mx-auto flex flex-col">
+      <div className="space-y-1">
         <textarea
+          name="message"
           placeholder="Your Message"
-          rows={4}
-          className="p-3 rounded-lg bg-gray-800 border border-gray-700 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
-          value={message}
-          onChange={(e) => setMessage(e.target.value)}
-        ></textarea>
-        <div className="h-5">
-          {errors.message && (
-            <span className="text-red-500 text-sm">{errors.message}</span>
-          )}
-        </div>
+          rows={5}
+          className="w-full p-3 rounded-lg bg-gray-800 border border-gray-700 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
+          value={formData.message}
+          onChange={handleChange}
+        />
+        {errors.message && (
+          <p className="text-red-500 text-sm px-1">{errors.message}</p>
+        )}
       </div>
 
       <button
         type="submit"
         disabled={loading}
-        className={`px-6 py-3 ${
-          loading ? "bg-gray-500" : "bg-blue-500 hover:bg-blue-600"
-        } text-white font-medium rounded-full transition focus:outline-none focus:ring-2 focus:ring-blue-500`}
+        className={`w-full flex items-center justify-center gap-2 px-6 py-3 rounded-full font-medium transition ${
+          loading
+            ? "bg-blue-600 cursor-not-allowed"
+            : "bg-blue-500 hover:bg-blue-600"
+        }`}
       >
-        {loading ? "Sending..." : "Send Message"}
+        {loading ? (
+          <>
+            <Loader2 className="h-5 w-5 animate-spin" />
+            <span>Sending...</span>
+          </>
+        ) : (
+          <>
+            <Send className="h-5 w-5" />
+            <span>Send Message</span>
+          </>
+        )}
       </button>
+
       {status.message && (
         <div
-          className={`relative p-3 rounded-lg text-white flex justify-between items-center ${
-            status.type === "success" ? "bg-green-600" : "bg-red-600"
+          className={`p-4 rounded-lg flex items-start justify-between ${
+            status.type === "success"
+              ? "bg-green-900/50 border border-green-700"
+              : "bg-red-900/50 border border-red-700"
           }`}
         >
-          <span>{status.message}</span>
+          <p className="text-sm">{status.message}</p>
           <button
             onClick={() => setStatus({ type: "", message: "" })}
-            className="ml-4 text-white hover:text-gray-200"
-            aria-label="Close"
+            className="text-gray-300 hover:text-white ml-4"
           >
-            <X size={20} />
+            <X size={18} />
           </button>
         </div>
       )}

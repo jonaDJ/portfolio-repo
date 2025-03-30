@@ -11,6 +11,7 @@ import {
 } from "lucide-react";
 import { SocialLinks } from "@/components/SocialLinks";
 import { fetchDocumentById } from "@/lib/firebase";
+import Loading from "@/components/Loading";
 
 interface AboutMeProps {
   name: string;
@@ -47,10 +48,12 @@ const AboutMe = () => {
     fetchBlogData();
   }, []);
 
+  if (loading) {
+    return <Loading size="lg" text="Decrypting bio data..." fullScreen />;
+  }
+
   return (
     <div className="bg-gradient-to-br from-gray-900 to-gray-800 text-white min-h-full flex items-center justify-center pb-20 sm:p-4 sm:pb-8 flex-col">
-      {loading && <div>loading...</div>}
-
       {data && (
         <>
           <div className="max-w-4xl w-full sm:rounded-3xl shadow-2xl overflow-hidden">
@@ -94,28 +97,28 @@ const AboutMe = () => {
                       My Tech Journey
                     </h3>
                     <div className="relative">
-                      {data.techJourney.map((item, index) => (
-                        <div
-                          key={item + index}
-                          className="relative mb-4 sm:mb-8"
-                        >
-                          <div className="flex items-center">
-                            <div className="z-10 w-8 h-8 rounded-full bg-indigo-600 flex items-center justify-center">
-                              <span className="text-white text-sm font-semibold">
-                                {index + 1}
-                              </span>
+                      <div className="flex flex-col gap-6">
+                        {data.techJourney.map((item, index) => (
+                          <div
+                            key={item + index}
+                            className="relative p-4 rounded-lg bg-gray-700 shadow-md transition-shadow hover:shadow-lg"
+                          >
+                            <div className="flex items-start">
+                              <div className="mr-4">
+                                <LucideRocket className="w-8 h-8 text-indigo-400" />
+                              </div>
+                              <div>
+                                <h4 className="text-md font-semibold text-gray-200 mb-1">
+                                  {item}
+                                </h4>
+                              </div>
                             </div>
-                            <div className=" ml-4">
-                              <h4 className="text-md font-semibold text-gray-200">
-                                {item}
-                              </h4>
-                            </div>
+                            {index < data.techJourney.length - 1 && (
+                              <div className="absolute left-4 top-full w-0.5 h-8 bg-gray-600"></div>
+                            )}
                           </div>
-                          {index < data.techJourney.length - 1 && (
-                            <div className="absolute top-10 left-3 sm:left-3.5 h-full w-0.5 bg-gray-700"></div>
-                          )}
-                        </div>
-                      ))}
+                        ))}
+                      </div>
                     </div>
                   </div>
                 )}
