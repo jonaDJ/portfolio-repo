@@ -1,5 +1,5 @@
 import React from "react";
-import { CookingPot, Github, Linkedin } from "lucide-react";
+import { ArrowUpRight, CookingPot, Github, Linkedin } from "lucide-react";
 
 const socialLinks = [
   {
@@ -12,7 +12,7 @@ const socialLinks = [
   {
     id: 2,
     href: process.env.NEXT_PUBLIC_GITHUB_URL || "#",
-    icon: <Github size={24} className="text-purple-500" />,
+    icon: <Github size={24} className="text-slate-300" />,
     label: "GitHub",
     description: "Check out my projects",
   },
@@ -31,9 +31,32 @@ interface SocialLinksProps {
 export const SocialLinks: React.FC<SocialLinksProps> = ({
   iconsOnly = false,
 }) => {
+  if (iconsOnly) {
+    return (
+      <div className="mt-8 w-full">
+        <div className="flex items-center justify-center gap-3">
+          {socialLinks.map((link) => (
+            <a
+              key={link.id}
+              href={link.href}
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label={link.label}
+              className="group flex h-11 w-11 items-center justify-center rounded-full border border-gray-700 bg-gray-900/80 transition hover:-translate-y-0.5 hover:border-gray-500 hover:bg-gray-800"
+            >
+              <span className="transition-transform group-hover:scale-110">
+                {link.icon}
+              </span>
+            </a>
+          ))}
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <div className="mt-12 w-full">
-      <div className="flex flex-row gap-6 justify-center">
+    <div className="mt-10 w-full">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
         {socialLinks.map((link) => (
           <a
             key={link.id}
@@ -41,17 +64,19 @@ export const SocialLinks: React.FC<SocialLinksProps> = ({
             target="_blank"
             rel="noopener noreferrer"
             aria-label={link.label}
-            className={`flex items-center justify-center md:justify-start gap-4 p-4 bg-gray-900 border border-gray-800 rounded-lg transition hover:bg-gray-800 hover:border-gray-700 ${
-              !iconsOnly ? "sm:flex-1" : "sm:flex"
-            }  max-w-xs md:max-w-md`}
+            className="group relative overflow-hidden rounded-xl border border-gray-800 bg-gray-900/75 p-4 transition-all duration-200 hover:-translate-y-1 hover:border-gray-600 hover:bg-gray-900"
           >
-            {link.icon}
-            {!iconsOnly && (
-              <div className="hidden sm:block">
-                <p className="font-medium">{link.label}</p>
-                <p className="text-sm text-gray-400">{link.description}</p>
+            <span className="pointer-events-none absolute inset-0 bg-gradient-to-r from-emerald-500/0 via-emerald-400/10 to-emerald-500/0 opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
+            <div className="relative flex items-center justify-between gap-4">
+              <div className="flex items-center gap-3">
+                <span>{link.icon}</span>
+                <div>
+                  <p className="font-medium text-white">{link.label}</p>
+                  <p className="text-sm text-gray-400">{link.description}</p>
+                </div>
               </div>
-            )}
+              <ArrowUpRight className="h-4 w-4 text-gray-400 transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5 group-hover:text-emerald-300" />
+            </div>
           </a>
         ))}
       </div>

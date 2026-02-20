@@ -1,13 +1,13 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import Image from "next/image";
 import {
+  LucideLaptop2,
   LucideLightbulb,
-  LucideTarget,
   LucideMapPin,
   LucideRocket,
-  LucideLaptop2,
+  LucideTarget,
 } from "lucide-react";
 import { SocialLinks } from "@/components/SocialLinks";
 import { fetchDocumentById } from "@/lib/firebase";
@@ -16,7 +16,7 @@ import Loading from "@/components/Loading";
 interface AboutMeProps {
   name: string;
   title: string;
-  avatarUrl: string;
+  avatarUrl?: string;
   bio: string;
   expertise: string[];
   passions: string[];
@@ -28,157 +28,191 @@ interface AboutMeProps {
 
 const AboutMe = () => {
   const [data, setData] = useState<AboutMeProps | null>(null);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const fetchBlogData = async () => {
-      setLoading(true);
+    let active = true;
+
+    const fetchAboutData = async () => {
       try {
-        const blogData = await fetchDocumentById("about-me", "jon");
-        setData(blogData as AboutMeProps);
+        setLoading(true);
+        const aboutData = await fetchDocumentById("about-me", "jon");
+        if (!active) {
+          return;
+        }
+        setData((aboutData as AboutMeProps) || null);
       } catch (error) {
         console.error("Error fetching about me data:", error);
-        setData(null);
+        if (active) {
+          setData(null);
+        }
       } finally {
-        setLoading(false);
+        if (active) {
+          setLoading(false);
+        }
       }
     };
 
-    fetchBlogData();
+    fetchAboutData();
+
+    return () => {
+      active = false;
+    };
   }, []);
 
+  const initials = useMemo(() => {
+    if (!data?.name) {
+      return "JD";
+    }
+    return data.name
+      .split(" ")
+      .filter(Boolean)
+      .slice(0, 2)
+      .map((part) => part[0]?.toUpperCase())
+      .join("");
+  }, [data?.name]);
+
   if (loading) {
-    return <Loading size="lg" text="Decrypting bio data..." fullScreen />;
+    return <Loading size="lg" text="Loading about..." accent="cyan" fullScreen />;
   }
 
   if (!data) {
     return (
-      <div className="text-white min-h-full flex items-center justify-center p-6">
-        <div className="max-w-xl w-full rounded-xl border border-gray-800 bg-gray-900/70 p-6 text-center">
-          <h2 className="text-2xl font-semibold mb-3">About data unavailable</h2>
-          <p className="text-gray-300">
-            I couldn&apos;t load the about information right now. Please try
-            again shortly.
+      <section className="px-4 py-10 text-white sm:px-6 xl:px-10">
+        <div className="mx-auto max-w-4xl rounded-2xl border border-gray-800 bg-gray-950/70 p-8 text-center">
+          <h2 className="text-2xl font-semibold">About data unavailable</h2>
+          <p className="mt-3 text-gray-300">
+            Could not load your profile document from Firestore.
           </p>
         </div>
-      </div>
+      </section>
     );
   }
 
   return (
-    <div className="text-white min-h-full flex items-center justify-center pb-20 sm:p-4 sm:pb-8 flex-col">
-      <>
-        <div className="max-w-4xl w-full sm:rounded-3xl shadow-2xl overflow-hidden">
-          <div className="grid grid-cols-1 md:grid-cols-2 min-h-[95vh]">
-            <div className="bg-gray-800 p-8 flex flex-col items-center justify-center">
-              <Image
-                src={data.avatarUrl}
-                alt={data.name}
-                width={200}
-                height={200}
-                className="rounded-full mb-6 border-4 border-gray-700"
-              />
-              <h2 className="text-3xl font-semibold mb-2">{data.name}</h2>
-              <p className="text-gray-400 text-lg mb-4">{data.title}</p>
-              <div className="flex items-center">
-                <LucideMapPin className="w-5 h-5 mr-2 text-gray-500" />
-                <p className="text-gray-400">{data.location}</p>
+    <section className="contact-grid-bg relative overflow-hidden px-4 py-10 text-white sm:px-6 xl:px-10">
+      <div className="pointer-events-none absolute inset-0">
+        <div className="float-slow absolute right-8 top-20 h-28 w-28 rounded-full bg-cyan-500/15 blur-3xl" />
+        <div className="float-slow absolute bottom-12 left-10 h-32 w-32 rounded-full bg-blue-500/15 blur-3xl [animation-delay:1s]" />
+      </div>
+
+      <div className="mx-auto w-full max-w-[1600px] space-y-8">
+        <div className="reveal-up text-center">
+          <p className="mb-3 inline-block rounded-full border border-cyan-400/30 bg-cyan-500/10 px-4 py-1 text-xs font-semibold uppercase tracking-[0.2em] text-cyan-300">
+            About
+          </p>
+          <h1 className="text-4xl font-bold leading-tight sm:text-5xl">
+            Developer Profile
+          </h1>
+        </div>
+
+        <div className="reveal-up reveal-delay-1 grid grid-cols-1 gap-6 rounded-2xl border border-gray-800/80 bg-gray-950/60 p-4 shadow-[0_0_0_1px_rgba(255,255,255,0.02),0_30px_70px_-35px_rgba(8,145,178,0.45)] backdrop-blur-sm sm:p-8 lg:grid-cols-12">
+          <aside className="lg:col-span-4 xl:col-span-3 xl:sticky xl:top-8 xl:self-start">
+            <div className="rounded-2xl border border-gray-800 bg-gray-900/70 p-6">
+              <div className="mb-5 flex justify-center">
+                {data.avatarUrl ? (
+                  <Image
+                    src={data.avatarUrl}
+                    alt={data.name}
+                    width={144}
+                    height={144}
+                    className="h-36 w-36 rounded-full border-4 border-gray-700 object-cover"
+                  />
+                ) : (
+                  <div className="flex h-36 w-36 items-center justify-center rounded-full border-4 border-gray-700 bg-gray-800 text-4xl font-bold text-cyan-300">
+                    {initials}
+                  </div>
+                )}
               </div>
-              <div id="contact">
+
+              <h2 className="text-center text-2xl font-semibold">{data.name}</h2>
+              <p className="mt-1 text-center text-gray-300">{data.title}</p>
+
+              <div className="mt-4 flex items-center justify-center gap-2 text-sm text-gray-400">
+                <LucideMapPin className="h-4 w-4" />
+                <span>{data.location}</span>
+              </div>
+
+              <div className="mt-6" id="contact">
                 <SocialLinks iconsOnly={true} />
               </div>
             </div>
+          </aside>
 
-            <div className="p-8 space-y-6">
-              <div>
-                <h3 className="text-xl font-semibold mb-3 flex items-center">
-                  <LucideRocket className="w-6 h-6 mr-2" />
-                  About
-                </h3>
-                <p className="text-gray-300 leading-relaxed">{data.bio}</p>
-                <a
-                  href="#additional-info"
-                  className="mt-4 text-sm text-indigo-400 hover:text-indigo-300 transition-colors inline-block"
-                >
-                  Learn More
-                </a>
-              </div>
+          <div className="lg:col-span-8 xl:col-span-9">
+            <article className="rounded-2xl border border-gray-800 bg-gray-900/55 p-6 sm:p-7">
+              <h3 className="mb-3 flex items-center gap-2 text-xl font-semibold">
+                <LucideRocket className="h-5 w-5 text-cyan-300" />
+                About
+              </h3>
+              <p className="leading-relaxed text-gray-300">{data.bio}</p>
+              <a
+                href="#additional-info"
+                className="mt-4 inline-block text-sm font-medium text-cyan-300 transition-colors hover:text-cyan-200"
+              >
+                Learn More
+              </a>
+            </article>
 
-              {data.techJourney && data.techJourney.length > 0 && (
-                <div className="mt-8">
-                  <h3 className="text-lg font-semibold flex items-center gap-1 mb-4">
-                    <LucideLaptop2 className="w-6 h-6" />
-                    My Tech Journey
-                  </h3>
-                  <div className="relative">
-                    <div className="flex flex-col gap-6">
-                      {data.techJourney.map((item, index) => (
-                        <div
-                          key={item + index}
-                          className="relative p-4 rounded-lg bg-gray-700 shadow-md transition-shadow hover:shadow-lg"
-                        >
-                          <div className="flex items-start">
-                            <div className="mr-4">
-                              <LucideRocket className="w-8 h-8 text-indigo-400" />
-                            </div>
-                            <div>
-                              <h4 className="text-md font-semibold text-gray-200 mb-1">
-                                {item}
-                              </h4>
-                            </div>
-                          </div>
-                          {index < data.techJourney.length - 1 && (
-                            <div className="absolute left-4 top-full w-0.5 h-8 bg-gray-600"></div>
-                          )}
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                </div>
-              )}
-            </div>
+            <article className="mt-6 rounded-2xl border border-gray-800 bg-gray-900/55 p-6 sm:p-7">
+              <h3 className="mb-5 flex items-center gap-2 text-xl font-semibold">
+                <LucideLaptop2 className="h-5 w-5 text-cyan-300" />
+                My Tech Journey
+              </h3>
+              <ul className="space-y-4">
+                {data.techJourney.map((item, index) => (
+                  <li key={`${item}-${index}`} className="relative pl-8">
+                    <span className="absolute left-0 top-1.5 h-3 w-3 rounded-full bg-cyan-400" />
+                    {index < data.techJourney.length - 1 && (
+                      <span className="absolute left-[5px] top-5 h-[calc(100%-4px)] w-px bg-gray-700" />
+                    )}
+                    <p className="text-gray-300">{item}</p>
+                  </li>
+                ))}
+              </ul>
+            </article>
           </div>
         </div>
 
-        <div id="additional-info" className="mt-8 max-w-4xl w-full p-4">
-          <h3 className="text-xl font-semibold flex gap-3 mb-4">
-            More About Me
-          </h3>
+        <section
+          id="additional-info"
+          className="reveal-up reveal-delay-2 scroll-mt-16 rounded-2xl border border-gray-800/80 bg-gray-950/60 p-5 shadow-[0_0_0_1px_rgba(255,255,255,0.02)] sm:p-8"
+        >
+          <h3 className="mb-5 text-2xl font-semibold">More About Me</h3>
 
-          {data.more.length > 0 &&
-            data.more?.map((item, index) => (
-              <p
-                key={item + index}
-                className="text-gray-300 leading-relaxed my-4"
-              >
+          <div className="space-y-4">
+            {data.more.map((item, index) => (
+              <p key={`${item}-${index}`} className="leading-relaxed text-gray-300">
                 {item}
               </p>
             ))}
+          </div>
 
-          <div className="flex flex-col gap-5">
-            <div className="flex flex-wrap gap-2">
-              {data.expertise.length > 0 &&
-                data.expertise.map((item, index) => (
+          <div className="mt-8 space-y-7">
+            <div>
+              <h4 className="mb-3 text-lg font-semibold">Core Expertise</h4>
+              <div className="flex flex-wrap gap-2">
+                {data.expertise.map((item, index) => (
                   <span
-                    key={item + index}
-                    className="bg-gray-700 text-gray-300 text-sm font-medium px-3 py-1 rounded-full"
+                    key={`${item}-${index}`}
+                    className="rounded-full border border-gray-700 bg-gray-800/80 px-3 py-1 text-sm text-gray-200"
                   >
                     {item}
                   </span>
                 ))}
+              </div>
             </div>
 
             <div>
-              <h3 className="text-xl font-semibold mb-3 flex items-center">
-                <LucideLightbulb className="w-6 h-6 mr-2" />
-                Hobbies & Interests
-              </h3>
-
+              <h4 className="mb-3 flex items-center gap-2 text-lg font-semibold">
+                <LucideLightbulb className="h-5 w-5 text-amber-300" />
+                Hobbies and Interests
+              </h4>
               <div className="flex flex-wrap gap-2">
                 {data.hobbies.map((item, index) => (
                   <span
-                    key={item + index}
-                    className="bg-purple-700 text-purple-300 text-sm font-medium px-3 py-1 rounded-full"
+                    key={`${item}-${index}`}
+                    className="rounded-full border border-amber-900/60 bg-amber-900/20 px-3 py-1 text-sm text-amber-200"
                   >
                     {item}
                   </span>
@@ -187,27 +221,27 @@ const AboutMe = () => {
             </div>
 
             <div>
-              <h3 className="text-xl font-semibold mb-3 flex items-center">
-                <LucideTarget className="w-6 h-6 mr-2" />
+              <h4 className="mb-3 flex items-center gap-2 text-lg font-semibold">
+                <LucideTarget className="h-5 w-5 text-cyan-300" />
                 Passions
-              </h3>
+              </h4>
               <div className="flex flex-wrap gap-2">
-                {data.passions.length > 0 &&
-                  data.passions?.map((item, index) => (
-                    <span
-                      key={item + index}
-                      className="bg-indigo-700 text-indigo-300 text-sm font-medium px-3 py-1 rounded-full"
-                    >
-                      {item}
-                    </span>
-                  ))}
+                {data.passions.map((item, index) => (
+                  <span
+                    key={`${item}-${index}`}
+                    className="rounded-full border border-cyan-900/60 bg-cyan-900/20 px-3 py-1 text-sm text-cyan-100"
+                  >
+                    {item}
+                  </span>
+                ))}
               </div>
             </div>
           </div>
-        </div>
-      </>
-    </div>
+        </section>
+      </div>
+    </section>
   );
 };
 
 export default AboutMe;
+

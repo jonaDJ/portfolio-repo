@@ -1,7 +1,7 @@
 "use client";
 
 import { MessageSquare } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useEffect, useId, useState } from "react";
 import { arrayUnion, doc, updateDoc } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 
@@ -24,6 +24,8 @@ const CommentSection = ({ blogId, initialComments = [] }: CommentSectionProps) =
   const [commentPage, setCommentPage] = useState(1);
   const [comment, setComment] = useState({ name: "", text: "" });
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const nameInputId = useId();
+  const commentInputId = useId();
 
   useEffect(() => {
     setComments(initialComments);
@@ -105,7 +107,11 @@ const CommentSection = ({ blogId, initialComments = [] }: CommentSectionProps) =
 
       <form onSubmit={handleSubmitComment} className="mb-10">
         <div className="space-y-4">
+          <label htmlFor={nameInputId} className="sr-only">
+            Your Name
+          </label>
           <input
+            id={nameInputId}
             type="text"
             placeholder="Your Name"
             className="w-full p-3 bg-gray-800 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
@@ -113,7 +119,11 @@ const CommentSection = ({ blogId, initialComments = [] }: CommentSectionProps) =
             onChange={(e) => setComment({ ...comment, name: e.target.value })}
             required
           />
+          <label htmlFor={commentInputId} className="sr-only">
+            Your Comment
+          </label>
           <textarea
+            id={commentInputId}
             placeholder="Share your thoughts..."
             className="w-full p-3 bg-gray-800 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
             rows={4}

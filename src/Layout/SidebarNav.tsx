@@ -1,12 +1,13 @@
 "use client";
 
 import React, { useState, useRef, useEffect } from "react";
+import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
-  BrainCircuit,
-  BookOpen,
-  Terminal,
-  Mail,
+  House,
+  Newspaper,
+  KanbanSquare,
+  MessageCircleMore,
   Menu,
   X,
   User,
@@ -16,39 +17,75 @@ const navLinks = [
   {
     id: 1,
     href: "/",
-    icon: <BrainCircuit size={24} className="text-sky-400" />,
+    icon: <House size={24} className="text-red-500" />,
     label: "Home",
   },
   {
     id: 2,
     href: "/blog",
-    icon: <BookOpen size={24} className="text-rose-500" />,
+    icon: <Newspaper size={24} className="text-blue-400" />,
     label: "Blog",
   },
   {
     id: 3,
     href: "/projects",
-    icon: <Terminal size={24} className="text-lime-400" />,
+    icon: <KanbanSquare size={24} className="text-orange-400" />,
     label: "Projects",
   },
   {
     id: 4,
     href: "/contact",
-    icon: <Mail size={24} className="text-indigo-400" />,
+    icon: <MessageCircleMore size={24} className="text-emerald-300" />,
     label: "Connect",
   },
   {
     id: 5,
     href: "/#about",
-    icon: <User size={24} className="text-teal-500" />,
+    icon: <User size={24} className="text-violet-400" />,
     label: "About",
   },
 ];
 
+const SIDEBAR_STATE_KEY = "sidebar_nav_state";
+
 const SidebarNav = () => {
   const [isOpen, setIsOpen] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
+  const [hash, setHash] = useState("");
   const sidebarRef = useRef<HTMLDivElement | null>(null);
   const pathname = usePathname();
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+
+    const mediaQuery = window.matchMedia("(max-width: 639px)");
+
+    const applyViewportState = () => {
+      const mobileView = mediaQuery.matches;
+      setIsMobile(mobileView);
+
+      if (mobileView) {
+        setIsOpen(false);
+        return;
+      }
+
+      const persistedState = window.localStorage.getItem(SIDEBAR_STATE_KEY);
+      setIsOpen(persistedState === "open");
+    };
+
+    applyViewportState();
+
+    mediaQuery.addEventListener("change", applyViewportState);
+    return () => mediaQuery.removeEventListener("change", applyViewportState);
+  }, []);
+
+  useEffect(() => {
+    if (typeof window === "undefined" || isMobile) return;
+    window.localStorage.setItem(
+      SIDEBAR_STATE_KEY,
+      isOpen ? "open" : "closed"
+    );
+  }, [isOpen, isMobile]);
 
   useEffect(() => {
     if (typeof window !== "undefined" && window.location.hash) {
@@ -59,6 +96,22 @@ const SidebarNav = () => {
       }
     }
   }, [pathname]);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+
+    const updateHash = () => setHash(window.location.hash);
+    updateHash();
+    window.addEventListener("hashchange", updateHash);
+
+    return () => window.removeEventListener("hashchange", updateHash);
+  }, [pathname]);
+
+  useEffect(() => {
+    if (isMobile) {
+      setIsOpen(false);
+    }
+  }, [pathname, isMobile]);
 
   const toggleSidebar = () => {
     setIsOpen(!isOpen);
@@ -103,18 +156,28 @@ const SidebarNav = () => {
       </button>
       <div className="flex flex-row gap-0 w-full border-b-1 sm:flex-col sm:gap-4 sm:border-b-0">
         {navLinks.map((link) => {
-          const isActive = pathname === link.href;
+          const isAboutLink = link.href === "/#about";
+          const isHomeLink = link.href === "/";
+          const isAboutHash = hash === "#about" || hash === "#additional-info";
+          const isActive = isAboutLink
+            ? pathname === "/" && isAboutHash
+            : isHomeLink
+            ? pathname === "/" && !isAboutHash
+            : pathname === link.href;
           return (
-            <a
+            <Link
               key={link.id}
               href={link.href}
+              aria-label={link.label}
+              aria-current={isActive ? "page" : undefined}
+              onClick={() => {
+                if (isMobile) {
+                  setIsOpen(false);
+                }
+              }}
               className={`flex items-center justify-center gap-4 py-3 px-2 w-full hover:text-gray-900 hover:bg-white rounded-0 transition-all duration-200 ease-in-out ${
                 isActive ? "bg-gray-500 text-gray-900" : ""
               } sm:justify-start sm:rounded-lg`}
-              target={link.href.startsWith("http") ? "_blank" : undefined}
-              rel={
-                link.href.startsWith("http") ? "noopener noreferrer" : undefined
-              }
             >
               {link.icon}
               <span
@@ -124,7 +187,7 @@ const SidebarNav = () => {
               >
                 {link.label}
               </span>
-            </a>
+            </Link>
           );
         })}
       </div>

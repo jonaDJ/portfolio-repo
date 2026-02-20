@@ -96,13 +96,22 @@ export const ContactForm = () => {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="w-full max-w-lg mx-auto space-y-4">
-      <div className="space-y-1">
+    <form onSubmit={handleSubmit} className="w-full space-y-5" noValidate>
+      <div className="space-y-2">
+        <label
+          htmlFor="name"
+          className="block text-xs font-semibold uppercase tracking-[0.14em] text-gray-400"
+        >
+          Name
+        </label>
         <input
+          id="name"
           name="name"
           type="text"
           placeholder="Your Name"
-          className="w-full p-3 rounded-lg bg-gray-800 border border-gray-700 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
+          disabled={loading}
+          aria-invalid={Boolean(errors.name)}
+          className="w-full rounded-xl border border-gray-700 bg-gray-900/80 px-4 py-3 text-white placeholder-gray-500 transition focus:border-emerald-400/70 focus:outline-none focus:ring-2 focus:ring-emerald-400/50 disabled:cursor-not-allowed disabled:opacity-70"
           value={formData.name}
           onChange={handleChange}
         />
@@ -111,12 +120,21 @@ export const ContactForm = () => {
         )}
       </div>
 
-      <div className="space-y-1">
+      <div className="space-y-2">
+        <label
+          htmlFor="email"
+          className="block text-xs font-semibold uppercase tracking-[0.14em] text-gray-400"
+        >
+          Email
+        </label>
         <input
+          id="email"
           name="email"
           type="email"
           placeholder="Your Email"
-          className="w-full p-3 rounded-lg bg-gray-800 border border-gray-700 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
+          disabled={loading}
+          aria-invalid={Boolean(errors.email)}
+          className="w-full rounded-xl border border-gray-700 bg-gray-900/80 px-4 py-3 text-white placeholder-gray-500 transition focus:border-emerald-400/70 focus:outline-none focus:ring-2 focus:ring-emerald-400/50 disabled:cursor-not-allowed disabled:opacity-70"
           value={formData.email}
           onChange={handleChange}
         />
@@ -125,12 +143,21 @@ export const ContactForm = () => {
         )}
       </div>
 
-      <div className="space-y-1">
+      <div className="space-y-2">
+        <label
+          htmlFor="message"
+          className="block text-xs font-semibold uppercase tracking-[0.14em] text-gray-400"
+        >
+          Message
+        </label>
         <textarea
+          id="message"
           name="message"
           placeholder="Your Message"
-          rows={5}
-          className="w-full p-3 rounded-lg bg-gray-800 border border-gray-700 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
+          rows={6}
+          disabled={loading}
+          aria-invalid={Boolean(errors.message)}
+          className="w-full rounded-xl border border-gray-700 bg-gray-900/80 px-4 py-3 text-white placeholder-gray-500 transition focus:border-emerald-400/70 focus:outline-none focus:ring-2 focus:ring-emerald-400/50 disabled:cursor-not-allowed disabled:opacity-70"
           value={formData.message}
           onChange={handleChange}
         />
@@ -142,10 +169,10 @@ export const ContactForm = () => {
       <button
         type="submit"
         disabled={loading}
-        className={`w-full flex items-center justify-center gap-2 px-6 py-3 rounded-full font-medium transition ${
+          className={`group flex w-full items-center justify-center gap-2 rounded-xl px-6 py-3.5 font-semibold transition-all duration-200 ${
           loading
-            ? "bg-blue-600 cursor-not-allowed"
-            : "bg-blue-500 hover:bg-blue-600"
+            ? "cursor-not-allowed bg-emerald-700/80 text-emerald-100"
+            : "bg-emerald-500 text-slate-950 hover:-translate-y-0.5 hover:bg-emerald-400"
         }`}
       >
         {loading ? (
@@ -155,7 +182,7 @@ export const ContactForm = () => {
           </>
         ) : (
           <>
-            <Send className="h-5 w-5" />
+            <Send className="h-5 w-5 transition-transform group-hover:translate-x-0.5" />
             <span>Send Message</span>
           </>
         )}
@@ -163,15 +190,20 @@ export const ContactForm = () => {
 
       {status.message && (
         <div
-          className={`p-4 rounded-lg flex items-start justify-between ${
+          role={status.type === "error" ? "alert" : "status"}
+          aria-live={status.type === "error" ? "assertive" : "polite"}
+          aria-atomic="true"
+          className={`flex items-start justify-between rounded-xl border p-4 ${
             status.type === "success"
-              ? "bg-green-900/50 border border-green-700"
-              : "bg-red-900/50 border border-red-700"
+              ? "border-emerald-700/80 bg-emerald-950/40"
+              : "border-red-700/80 bg-red-950/40"
           }`}
         >
           <p className="text-sm">{status.message}</p>
           <button
+            type="button"
             onClick={() => setStatus({ type: "", message: "" })}
+            aria-label="Dismiss status message"
             className="text-gray-300 hover:text-white ml-4"
           >
             <X size={18} />

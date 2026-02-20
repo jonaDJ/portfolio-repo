@@ -15,4 +15,81 @@
 body {
   background: var(--background);
   color: var(--foreground);
+  min-height: 100vh;
+}
+
+@keyframes fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes float-slow {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0);
+  }
+  50% {
+    transform: translate3d(0, -12px, 0);
+  }
+}
+
+.reveal-up {
+  animation: fade-up 700ms ease-out both;
+}
+
+.reveal-delay-1 {
+  animation-delay: 120ms;
+}
+
+.reveal-delay-2 {
+  animation-delay: 220ms;
+}
+
+.float-slow {
+  animation: float-slow 7s ease-in-out infinite;
+}
+
+.contact-grid-bg {
+  position: relative;
+  isolation: isolate;
+}
+
+.contact-grid-bg::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background:
+    linear-gradient(
+      to right,
+      rgba(148, 163, 184, 0.08) 1px,
+      transparent 1px
+    ),
+    linear-gradient(
+      to bottom,
+      rgba(148, 163, 184, 0.08) 1px,
+      transparent 1px
+    );
+  background-size: 34px 34px;
+  mask-image: radial-gradient(circle at center, black 35%, transparent 90%);
+}
+
+.no-search-cancel::-webkit-search-cancel-button,
+.no-search-cancel::-webkit-search-decoration {
+  -webkit-appearance: none;
+  appearance: none;
+  display: none;
+}
+
+.no-search-cancel::-ms-clear,
+.no-search-cancel::-ms-reveal {
+  display: none;
+  width: 0;
+  height: 0;
 }
