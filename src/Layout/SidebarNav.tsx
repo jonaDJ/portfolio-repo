@@ -17,13 +17,13 @@ const navLinks = [
     id: 1,
     href: "/",
     icon: <BrainCircuit size={24} className="text-sky-400" />,
-    label: "Overview",
+    label: "Home",
   },
   {
     id: 2,
     href: "/blog",
     icon: <BookOpen size={24} className="text-rose-500" />,
-    label: "Journal",
+    label: "Blog",
   },
   {
     id: 3,
@@ -39,7 +39,7 @@ const navLinks = [
   },
   {
     id: 5,
-    href: "/about",
+    href: "/#about",
     icon: <User size={24} className="text-teal-500" />,
     label: "About",
   },
@@ -51,10 +51,11 @@ const SidebarNav = () => {
   const pathname = usePathname();
 
   useEffect(() => {
-    if (typeof window !== "undefined" && window.location.hash === "#contact") {
-      const contactSection = document.getElementById("contact");
-      if (contactSection) {
-        contactSection.scrollIntoView({ behavior: "smooth" });
+    if (typeof window !== "undefined" && window.location.hash) {
+      const sectionId = window.location.hash.replace("#", "");
+      const targetSection = document.getElementById(sectionId);
+      if (targetSection) {
+        targetSection.scrollIntoView({ behavior: "smooth" });
       }
     }
   }, [pathname]);

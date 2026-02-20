@@ -69,31 +69,36 @@ const ProjectPage = () => {
   }
 
   return (
-    <section className="flex flex-col items-center bg-gray-950 text-white pb-30 pt-4 sm:pt-10 sm:pb-10 sm:px-2 lg:px-10">
-      <div className="hidden sm:block text-center p-1">
-        <h2 className="text-3xl sm:text-5xl font-bold">My Projects</h2>
-        <p className="mt-2 text-md sm:text-lg text-gray-300">
-          Here are some of the projects I've worked on. Feel free to explore!
-        </p>
-      </div>
+    <section className="bg-gray-950 text-white pb-30 pt-4 sm:pt-10 sm:pb-10">
+      <div className="max-w-6xl mx-auto w-full px-4 sm:px-6">
+        <div className="hidden sm:block text-center p-1">
+          <h2 className="text-3xl sm:text-5xl font-bold">My Projects</h2>
+          <p className="mt-2 text-md sm:text-lg text-gray-300">
+            Here are some of the projects I&apos;ve worked on. Feel free to
+            explore!
+          </p>
+        </div>
 
-      <SearchBar onSearch={handleSearch} />
+        <div className="w-full p-2">
+          <SearchBar onSearch={handleSearch} />
+        </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 w-full gap-10 sm:gap-4 px-2 py-3">
-        {filteredProjects.map((p, idx) => (
-          <ProjectCard
-            key={p.id}
-            id={idx}
-            image={p.image}
-            title={p.title}
-            description={p.description}
-            demoLink={p.demoLink || ""}
-            codeLink={p.codeLink}
-            date={p.date}
-            cardId={cardId}
-            setCardId={setCardId}
-          />
-        ))}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 w-full gap-10 sm:gap-4 px-2 py-3">
+          {filteredProjects.map((p, idx) => (
+            <ProjectCard
+              key={p.id}
+              id={idx}
+              image={p.image}
+              title={p.title}
+              description={p.description}
+              demoLink={p.demoLink || ""}
+              codeLink={p.codeLink}
+              date={p.date}
+              cardId={cardId}
+              setCardId={setCardId}
+            />
+          ))}
+        </div>
       </div>
     </section>
   );

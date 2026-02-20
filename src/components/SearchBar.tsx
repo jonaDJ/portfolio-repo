@@ -3,9 +3,17 @@ import { Search } from "lucide-react";
 
 interface SearchBarProps {
   onSearch: (query: string) => void;
+  placeholder?: string;
+  inputId?: string;
+  label?: string;
 }
 
-const SearchBar: React.FC<SearchBarProps> = ({ onSearch }) => {
+const SearchBar: React.FC<SearchBarProps> = ({
+  onSearch,
+  placeholder = "Search projects...",
+  inputId = "projectSearch",
+  label = "Search projects...",
+}) => {
   const [searchQuery, setSearchQuery] = useState("");
   const debounceTimeout = useRef<NodeJS.Timeout | null>(null);
 
@@ -26,14 +34,14 @@ const SearchBar: React.FC<SearchBarProps> = ({ onSearch }) => {
   }, [searchQuery, onSearch]);
 
   return (
-    <div className="relative p-2 w-full flex">
-      <label htmlFor="projectSearch" className="sr-only">
-        Search projects...
+    <div className="relative w-full flex">
+      <label htmlFor={inputId} className="sr-only">
+        {label}
       </label>
       <input
         type="search"
-        id="projectSearch"
-        placeholder="Search projects..."
+        id={inputId}
+        placeholder={placeholder}
         value={searchQuery}
         onChange={(e) => setSearchQuery(e.target.value)}
         className="w-full p-3 pl-10 rounded-lg bg-gray-800 border border-gray-700 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"

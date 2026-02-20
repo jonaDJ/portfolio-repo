@@ -46,20 +46,23 @@ const ProjectCard: React.FC<ProjectCardProps> = ({
     return new Date(dateString).toLocaleDateString("en-US", options);
   };
 
+  const handleFrontCardKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
+    if (e.key === "Enter" || e.key === " ") {
+      e.preventDefault();
+      setCardId(id);
+    }
+  };
+
   return (
-    <article
-      key={id}
-      className="w-full bg-gray-900 rounded-lg overflow-hidden transition-all duration-300 transform hover:shadow-lg hover:scale-[1.01] cursor-pointer"
-    >
+    <article className="w-full bg-gray-900 rounded-lg overflow-hidden transition-all duration-300 transform hover:shadow-lg hover:scale-[1.01] cursor-pointer">
       <div
         className={`relative ${
           cardId === id ? "rotate-y-180" : "rotate-y-0"
         } transition-transform duration-500`}
       >
         {cardId === id ? (
-          // Description Card (Back)
           <div
-            className={`w-full justify-between h-full bg-gray-900 rounded-lg px-4 py-4 transition-opacity transform rotate-y-180 duration-500 flex flex-col`}
+            className="w-full justify-between h-full bg-gray-900 rounded-lg px-4 py-4 transition-opacity transform rotate-y-180 duration-500 flex flex-col"
             style={{
               height: mainCardHeight ? `${mainCardHeight}px` : "auto",
             }}
@@ -71,6 +74,10 @@ const ProjectCard: React.FC<ProjectCardProps> = ({
             <button
               className="w-full flex justify-end mb-2 text-gray-50 hover:text-gray-200"
               aria-label="Close description"
+              onClick={(e) => {
+                e.stopPropagation();
+                setCardId(-1);
+              }}
             >
               <XCircle size={24} className="text-gray-50 hover:text-gray-400" />
             </button>
@@ -82,14 +89,18 @@ const ProjectCard: React.FC<ProjectCardProps> = ({
             </div>
           </div>
         ) : (
-          // Main Card (Front)
           <div
             onClick={(e) => {
               e.stopPropagation();
               setCardId(id);
             }}
+            onKeyDown={handleFrontCardKeyDown}
             ref={mainCardRef}
-            className={`w-full h-full bg-gray-900 rounded-lg overflow-hidden transition-opacity duration-300`}
+            role="button"
+            tabIndex={0}
+            aria-expanded={cardId === id}
+            aria-label={`Open details for ${title}`}
+            className="w-full h-full bg-gray-900 rounded-lg overflow-hidden transition-opacity duration-300"
           >
             <div className="px-1 py-2 flex flex-col">
               <div className="relative aspect-[3/2] w-full mb-2">
@@ -98,7 +109,6 @@ const ProjectCard: React.FC<ProjectCardProps> = ({
                   alt={title}
                   className="object-cover"
                   fill
-                  priority
                   sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                 />
               </div>
@@ -108,11 +118,12 @@ const ProjectCard: React.FC<ProjectCardProps> = ({
                   <button
                     className="transition-transform hover:scale-110 focus:text-white"
                     aria-label="View description"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setCardId(id);
+                    }}
                   >
-                    <Info
-                      size={20}
-                      className="text-gray-50 hover:text-gray-400"
-                    />
+                    <Info size={20} className="text-gray-50 hover:text-gray-400" />
                   </button>
                 </div>
 
@@ -143,9 +154,7 @@ const ProjectCard: React.FC<ProjectCardProps> = ({
                       <span className="text-md">Code</span>
                     </Link>
                   </div>
-                  <span className="text-xs text-gray-400">
-                    {formatDate(date)}
-                  </span>
+                  <span className="text-xs text-gray-400">{formatDate(date)}</span>
                 </div>
               </div>
             </div>

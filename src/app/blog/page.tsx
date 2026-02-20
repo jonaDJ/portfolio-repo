@@ -1,36 +1,45 @@
-"use client";
+﻿"use client";
 
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { fetchCollection } from "@/lib/firebase";
-import { Clock, ArrowRight } from "lucide-react";
+import { Clock, MessageSquare } from "lucide-react";
 import Loading from "@/components/Loading";
+import SearchBar from "@/components/SearchBar";
 
 interface Blog {
   id: string;
-  title?: string; //I will add later
-  overview: string;
+  title?: string;
+  blogTitle?: string;
+  content?: string[];
   date: string;
   image: string;
   readTime?: string;
   createdAt?: any;
+  comments?: Array<{
+    name: string;
+    cmt: string;
+  }>;
 }
 
 const BlogPage = () => {
   const [blogs, setBlogs] = useState<Blog[]>([]);
   const [loading, setLoading] = useState(true);
+  const [searchQuery, setSearchQuery] = useState("");
 
   useEffect(() => {
     const fetchData = async () => {
       try {
         const data = await fetchCollection<Blog>("blog-data", [
           "title",
+          "blogTitle",
           "image",
-          "overview",
+          "content",
           "date",
           "readTime",
           "createdAt",
+          "comments",
         ]);
 
         const sortedBlogs = data.sort((a, b) => {
@@ -64,12 +73,49 @@ const BlogPage = () => {
     });
   };
 
+  const formatReadTime = (readTime?: string) => {
+    if (!readTime) return "5 min read";
+
+    const value = readTime.trim().toLowerCase();
+    const timeMatch = value.match(/^(\d+):(\d{1,2})(?::(\d{1,2}))?$/);
+    if (timeMatch) {
+      const first = Number(timeMatch[1]);
+      const second = Number(timeMatch[2]);
+      const third = timeMatch[3] ? Number(timeMatch[3]) : 0;
+      const totalSeconds = timeMatch[3]
+        ? first * 3600 + second * 60 + third
+        : first * 60 + second;
+      const minutes = Math.max(1, Math.ceil(totalSeconds / 60));
+      return `${minutes} min read`;
+    }
+
+    const numberMatch = value.match(/\d+/);
+    if (numberMatch) {
+      const minutes = Math.max(1, Number(numberMatch[0]));
+      return `${minutes} min read`;
+    }
+
+    return "5 min read";
+  };
+
   if (loading) {
     return <Loading size="lg" text="Loading articles..." fullScreen />;
   }
 
+  const filteredBlogs = blogs.filter((blog) => {
+    const normalizedQuery = searchQuery.toLowerCase().trim();
+    if (!normalizedQuery) return true;
+
+    const excerpt = blog.content?.[0] || "";
+    const searchTarget = `${blog.title || blog.blogTitle || ""} ${excerpt} ${
+      blog.readTime || ""
+    }`.toLowerCase();
+
+    return searchTarget.includes(normalizedQuery);
+  });
+
   return (
-    <section className="max-w-6xl mx-auto sm:px-6 py-2 sm:py-10  text-white">
+    <section className="max-w-6xl mx-auto px-4 sm:px-6 py-2 sm:py-10 text-white">
       <div className="text-center sm:mb-12 ">
         <h1 className="text-4xl sm:text-5xl font-bold mb-4">
           My <span className="text-blue-400">Blog</span>
@@ -79,46 +125,62 @@ const BlogPage = () => {
         </p>
       </div>
 
-      {blogs.length === 0 ? (
+      <div className="mb-6 sm:mb-8">
+        <SearchBar
+          onSearch={setSearchQuery}
+          placeholder="Search blog posts..."
+          inputId="blogSearch"
+          label="Search blog posts"
+        />
+      </div>
+
+      {filteredBlogs.length === 0 ? (
         <div className="text-center py-20">
-          <p className="text-gray-400">No articles found</p>
+          <p className="text-gray-400">
+            {blogs.length === 0 ? "No articles found" : "No matching posts"}
+          </p>
         </div>
       ) : (
-        <div className="space-y-12">
-          {blogs.map((blog) => (
-            <article key={blog.id} className="group">
-              <Link href={`/blog/${blog.id}`} passHref>
-                <div className="flex flex-col sm:flex-row gap-8 hover:bg-gray-900/50 p-0 rounded-lg transition-all duration-300">
-                  <div className=" sm:w-1/2 md:w-1/3 relative h-64 overflow-hidden sm:rounded-lg">
-                    <Image
-                      src={blog.image}
-                      alt={blog.title || blog.overview.substring(0, 50)}
-                      fill
-                      className="object-cover group-hover:scale-105 transition-transform duration-500"
-                      sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                      priority={blogs.indexOf(blog) < 3}
-                    />
-                  </div>
-                  <div className="px-4 sm:px-0 sm:w-1/2 md:w-2/3 flex flex-col">
-                    <div className="flex items-center gap-4 text-sm text-gray-400 mb-3">
+        <div className="divide-y divide-gray-800/70">
+          {filteredBlogs.map((blog, index) => (
+            <article key={blog.id} className="group py-6 sm:py-8">
+              <Link href={`/blog/${blog.id}`}>
+                <div className="flex items-start justify-between gap-4 sm:gap-6 md:gap-8 rounded-lg transition-colors duration-200 hover:bg-gray-900/30 p-2 sm:p-3">
+                  <div className="min-w-0 flex-1">
+                    <p className="text-sm text-gray-400 mb-2">By Jon</p>
+                    <h2 className="text-2xl sm:text-3xl font-bold mb-2 leading-tight group-hover:text-blue-400 transition-colors">
+                      {blog.title || blog.blogTitle || "Untitled post"}
+                    </h2>
+                    <p className="text-gray-300 mb-4 line-clamp-2 sm:line-clamp-3">
+                      {blog.content?.[0] || "No preview available."}
+                    </p>
+                    <div className="flex items-center gap-4 text-sm text-gray-400">
                       <span className="text-blue-400">
                         {formatDate(blog.createdAt?.toDate?.() || blog.date)}
                       </span>
-                      <div className="flex">
-                        <Clock className="w-4 h-4 mr-1 mt-0.5" />
-                        <span>{blog.readTime || "5 min read"}</span>
+                      <div className="flex items-center">
+                        <Clock className="w-4 h-4 mr-1" />
+                        <span>{formatReadTime(blog.readTime)}</span>
                       </div>
+                      <div className="flex items-center">
+                        <MessageSquare className="w-4 h-4 mr-1" />
+                        <span>{blog.comments?.length || 0}</span>
+                      </div>
+                      <span className="hidden sm:inline ml-auto text-blue-300 group-hover:text-blue-200 transition-colors">
+                        Continue reading
+                      </span>
                     </div>
-                    <h2 className="text-2xl font-bold mb-3 hover:text-blue-400 transition-colors">
-                      {blog.title || blog.overview.substring(0, 50) + "..."}
-                    </h2>
-                    <p className="text-gray-300 mb-4 line-clamp-3">
-                      {blog.overview}
-                    </p>
-                    <div className="mt-auto flex items-center text-blue-400 group-hover:text-blue-300 transition-colors">
-                      <span>Continue reading</span>
-                      <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" />
-                    </div>
+                  </div>
+
+                  <div className="relative w-28 h-20 sm:w-40 sm:h-24 md:w-44 md:h-28 flex-shrink-0 overflow-hidden rounded-md">
+                    <Image
+                      src={blog.image}
+                      alt={blog.title || blog.blogTitle || "Blog post image"}
+                      fill
+                      className="object-cover group-hover:scale-105 transition-transform duration-500"
+                      sizes="(max-width: 640px) 112px, (max-width: 768px) 160px, 176px"
+                      priority={index < 2}
+                    />
                   </div>
                 </div>
               </Link>

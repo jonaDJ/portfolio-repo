@@ -5,6 +5,7 @@ import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 import Image from "next/image";
 import Loading from "@/components/Loading";
+import AboutMe from "./about/page";
 
 const data = [
   {
@@ -44,7 +45,6 @@ const Home = () => {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    // Preload images with proper type annotation
     const preloadImages = () => {
       const promises = data.map((item) => {
         return new Promise<void>((resolve, reject) => {
@@ -69,22 +69,34 @@ const Home = () => {
     return () => clearInterval(interval);
   }, []);
 
+  useEffect(() => {
+    if (isLoading || typeof window === "undefined") return;
+    if (window.location.hash === "#about") {
+      const aboutSection = document.getElementById("about");
+      if (aboutSection) {
+        setTimeout(() => {
+          aboutSection.scrollIntoView({ behavior: "smooth", block: "start" });
+        }, 0);
+      }
+    }
+  }, [isLoading]);
+
   if (isLoading) {
     return <Loading size="lg" text="Decrypting data..." fullScreen />;
   }
 
   return (
-    <div className="flex justify-center items-center min-h-[calc(100vh-80px)]">
-      <section className="flex flex-col max-w-6xl items-center justify-center text-center py-10 px-4 sm:px-6">
-        <div className="w-full">
+    <main className="max-w-6xl mx-auto w-full px-4 sm:px-6">
+      <section className="min-h-screen flex flex-col items-center justify-center text-center py-10">
+        <div className="w-full max-w-6xl">
           <h1 className="text-4xl sm:text-5xl font-bold">
-            Building the Web, One Line at a Time – I'm{" "}
+            Building the Web, One Line at a Time - I&apos;m{" "}
             <span className="text-red-500">Jon!</span>
           </h1>
           <p className="mt-4 text-gray-300 text-lg">
-            I'm a web developer who loves building dynamic, high-performance
-            websites! Experimenting with JavaScript tools feels like mixing
-            ingredients to create the perfect recipe.
+            I&apos;m a web developer who loves building dynamic,
+            high-performance websites! Experimenting with JavaScript tools feels
+            like mixing ingredients to create the perfect recipe.
           </p>
 
           <div className="relative aspect-video w-full rounded-lg overflow-hidden shadow-lg my-10">
@@ -92,7 +104,6 @@ const Home = () => {
               src={data[sectionIndex].image}
               alt={data[sectionIndex].title}
               fill
-              priority
               className="object-cover opacity-50"
             />
             <div className="absolute inset-0 flex items-center justify-center">
@@ -117,30 +128,33 @@ const Home = () => {
               />
             ))}
           </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {data.map((item) => (
-              <div
-                key={item.id}
-                className="flex flex-col items-center text-center p-6  rounded-lg  h-full"
-              >
-                <h3 className="text-xl font-semibold mb-3">{item.title}</h3>
-                <p className="text-gray-300 mb-6 flex-grow">
-                  {item.description}
-                </p>
-                <Link
-                  href={item.link}
-                  className="inline-flex items-center gap-2 px-4 py-2 bg-gray-700 hover:bg-gray-600 rounded-full text-sm transition-colors w-fit"
-                >
-                  {item.actionLabel}
-                  <ArrowRight size={16} />
-                </Link>
-              </div>
-            ))}
-          </div>
         </div>
       </section>
-    </div>
+
+      <section className="pb-16 sm:pb-20">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          {data.map((item) => (
+            <div
+              key={item.id}
+              className="flex flex-col items-center text-center p-6 rounded-lg h-full"
+            >
+              <h3 className="text-xl font-semibold mb-3">{item.title}</h3>
+              <p className="text-gray-300 mb-6 flex-grow">{item.description}</p>
+              <Link
+                href={item.link}
+                className="inline-flex items-center gap-2 px-4 py-2 bg-gray-700 hover:bg-gray-600 rounded-full text-sm transition-colors w-fit"
+              >
+                {item.actionLabel}
+                <ArrowRight size={16} />
+              </Link>
+            </div>
+          ))}
+        </div>
+      </section>
+      <section id="about" className="scroll-mt-8">
+        <AboutMe />
+      </section>
+    </main>
   );
 };
 
